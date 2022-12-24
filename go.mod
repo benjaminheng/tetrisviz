@@ -1,3 +1,3 @@
-module github.com/benjaminheng/tetris-svg
+module github.com/benjaminheng/tetrisviz
 
 go 1.19

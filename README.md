@@ -1,3 +1,5 @@
+A toy program to render Tetris blocks to SVG using a compact DSL.
+
 TODO:
 
 - Switch to a lexer approach. If there's a syntax error I want to be able to

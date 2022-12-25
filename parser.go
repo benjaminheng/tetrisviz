@@ -4,13 +4,6 @@ import (
 	"errors"
 )
 
-type Config struct {
-	Board struct {
-		Width  int
-		Height int
-	}
-}
-
 type ConfigStmt struct {
 	Key   string
 	Value string
@@ -23,6 +16,7 @@ type DiagramStmt struct {
 type Parser struct {
 	lexer        *Lexer
 	statements   []any
+	isParsed     bool
 	buffer       []Token
 	numUnscanned int
 }
@@ -61,7 +55,7 @@ func (p *Parser) unscan() {
 	p.numUnscanned++
 }
 
-func (p *Parser) Parse() error {
+func (p *Parser) Parse() ([]any, error) {
 	var statements []any
 	for {
 		token := p.scan()
@@ -71,7 +65,7 @@ func (p *Parser) Parse() error {
 			p.unscan()
 			configStmt, err := p.parseConfigStmt()
 			if err != nil {
-				return err
+				return nil, err
 			}
 			statements = append(statements, configStmt)
 			continue
@@ -79,12 +73,13 @@ func (p *Parser) Parse() error {
 			p.unscan()
 			diagramStmt, err := p.parseDiagramStmt()
 			if err != nil {
-				return err
+				return nil, err
 			}
 			statements = append(statements, diagramStmt)
 		}
 	}
-	return nil
+	p.isParsed = true
+	return p.statements, nil
 }
 
 func (p *Parser) parseDiagramStmt() (DiagramStmt, error) {

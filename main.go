@@ -27,7 +27,13 @@ func execute() error {
 
 	lexer := NewLexer(f)
 	parser := NewParser(lexer)
-	err = parser.Parse()
+	statements, err := parser.Parse()
+	if err != nil {
+		return err
+	}
+
+	interpreter := NewInterpreter(statements)
+	err = interpreter.Eval()
 	if err != nil {
 		return err
 	}

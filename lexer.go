@@ -22,6 +22,7 @@ const (
 	TokenTypeConfig
 	TokenTypeEndStmt
 	TokenTypeSpace
+	TokenTypeHyphen
 	TokenTypeEOF
 )
 
@@ -61,7 +62,10 @@ func (l *Lexer) Scan() Token {
 		return Token{Type: TokenTypeEndStmt, Value: string(ch)}
 	case ' ':
 		l.unread()
-		return l.scanSpace()
+		return l.scanRune(' ', TokenTypeSpace)
+	case '-':
+		l.unread()
+		return l.scanRune('-', TokenTypeHyphen)
 	default:
 		if unicode.IsLetter(ch) || unicode.IsDigit(ch) {
 			l.unread()
@@ -71,7 +75,7 @@ func (l *Lexer) Scan() Token {
 	}
 }
 
-func (l *Lexer) scanSpace() Token {
+func (l *Lexer) scanRune(acceptedRune rune, tokenType TokenType) Token {
 	ch := l.read()
 	value := &strings.Builder{}
 	value.WriteRune(ch)
@@ -79,14 +83,14 @@ func (l *Lexer) scanSpace() Token {
 		ch := l.read()
 		if ch == EOF {
 			break
-		} else if ch != ' ' {
+		} else if ch != acceptedRune {
 			l.unread()
 			break
 		} else {
 			value.WriteRune(ch)
 		}
 	}
-	return Token{Type: TokenTypeSpace, Value: value.String()}
+	return Token{Type: tokenType, Value: value.String()}
 }
 
 func (l *Lexer) scanIdent() Token {

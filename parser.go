@@ -2,18 +2,26 @@ package main
 
 import (
 	"errors"
-	"fmt"
 )
+
+type Config struct {
+	Board struct {
+		Width  int
+		Height int
+	}
+}
 
 type ConfigStmt struct {
 	Key   string
 	Value string
 }
 
-type DiagramStmt struct{}
+type DiagramStmt struct {
+	Value string
+}
 
 type Parser struct {
-	Lexer        *Lexer
+	lexer        *Lexer
 	statements   []any
 	buffer       []Token
 	numUnscanned int
@@ -21,7 +29,7 @@ type Parser struct {
 
 func NewParser(lexer *Lexer) *Parser {
 	p := &Parser{
-		Lexer: lexer,
+		lexer: lexer,
 	}
 	return p
 }
@@ -34,7 +42,7 @@ func (p *Parser) scan() Token {
 		return token
 	}
 
-	token := p.Lexer.Scan()
+	token := p.lexer.Scan()
 
 	// Reset buffer when we reach the end of a statement
 	if token.Type == TokenTypeEOF || token.Type == TokenTypeEndStmt {
@@ -48,40 +56,65 @@ func (p *Parser) scan() Token {
 }
 
 func (p *Parser) unscan() {
-	// Unscanning is implemented by moving the cursor backwards. The scan
-	// function will read from the buffer.
+	// Unscanning is implemented by moving the buffer cursor backwards. The
+	// scan function will read from the buffer.
 	p.numUnscanned++
 }
 
 func (p *Parser) Parse() error {
-	configurationAllowed := true
 	var statements []any
 	for {
 		token := p.scan()
 		if token.Type == TokenTypeEOF {
 			break
-		}
-
-		// Configuration statements are only allowed at the beginning
-		// of the file before any other statements.
-		if configurationAllowed && token.Type == TokenTypeConfig {
+		} else if token.Type == TokenTypeConfig {
 			p.unscan()
-			configStmt, err := p.parseConfig()
+			configStmt, err := p.parseConfigStmt()
 			if err != nil {
 				return err
 			}
 			statements = append(statements, configStmt)
+			continue
+		} else {
+			p.unscan()
+			diagramStmt, err := p.parseDiagramStmt()
+			if err != nil {
+				return err
+			}
+			statements = append(statements, diagramStmt)
 		}
-	}
-
-	// TODO: remove, debugging
-	for _, statement := range statements {
-		fmt.Printf("statement = %+v\n", statement)
 	}
 	return nil
 }
 
-func (p *Parser) parseConfig() (ConfigStmt, error) {
+func (p *Parser) parseDiagramStmt() (DiagramStmt, error) {
+	var diagramStmt DiagramStmt
+	for {
+		token := p.scan()
+		if token.Type == TokenTypeEOF || token.Type == TokenTypeEndStmt {
+			break
+		}
+
+		switch token.Type {
+		case TokenTypeHyphen, TokenTypeIdent, TokenTypeSpace:
+		default:
+			return DiagramStmt{}, errors.New("invalid syntax")
+		}
+
+		for _, v := range token.Value {
+			switch v {
+			// These are the valid characters to describe a diagram
+			case '-', ' ', 'r', 'g', 'b', 'o', 'y', 'p', 't':
+			default:
+				return DiagramStmt{}, errors.New("invalid identifier")
+			}
+			diagramStmt.Value += string(v)
+		}
+	}
+	return diagramStmt, nil
+}
+
+func (p *Parser) parseConfigStmt() (ConfigStmt, error) {
 	token := p.scan()
 	if token.Type != TokenTypeConfig {
 		return ConfigStmt{}, errors.New("config statements must start with +")

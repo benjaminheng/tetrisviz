@@ -5,7 +5,6 @@ package main
 // #include "pikchr.h"
 import "C"
 import (
-	"fmt"
 	"log"
 	"os"
 	"unsafe"
@@ -27,17 +26,10 @@ func execute() error {
 	defer f.Close()
 
 	lexer := NewLexer(f)
-	var tokens []Token
-	for {
-		token := lexer.Scan()
-		if token.Type == TokenTypeEOF {
-			break
-		}
-		tokens = append(tokens, token)
-	}
-
-	for _, token := range tokens {
-		fmt.Printf("%+v\n", token)
+	parser := NewParser(lexer)
+	err = parser.Parse()
+	if err != nil {
+		return err
 	}
 	return nil
 }

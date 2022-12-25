@@ -56,7 +56,6 @@ func (p *Parser) unscan() {
 }
 
 func (p *Parser) Parse() ([]any, error) {
-	var statements []any
 	for {
 		token := p.scan()
 		if token.Type == TokenTypeEOF {
@@ -67,7 +66,7 @@ func (p *Parser) Parse() ([]any, error) {
 			if err != nil {
 				return nil, err
 			}
-			statements = append(statements, configStmt)
+			p.statements = append(p.statements, configStmt)
 			continue
 		} else {
 			p.unscan()
@@ -75,7 +74,7 @@ func (p *Parser) Parse() ([]any, error) {
 			if err != nil {
 				return nil, err
 			}
-			statements = append(statements, diagramStmt)
+			p.statements = append(p.statements, diagramStmt)
 		}
 	}
 	p.isParsed = true

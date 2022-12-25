@@ -1,13 +1,17 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+	"strings"
+)
 
 // DiagramConfig contains configuration values that are defined from the
 // .tetrisviz file.
 type DiagramConfig struct {
 	Board struct {
-		Width  int
-		Height int
+		Width  int64
+		Height int64
 	}
 }
 
@@ -27,7 +31,7 @@ func (i *Interpreter) Eval() error {
 	for _, stmt := range i.statements {
 		switch s := stmt.(type) {
 		case ConfigStmt:
-			if err := i.parseBoardStatement(s); err != nil {
+			if err := i.parseConfigStatement(s); err != nil {
 				return err
 			}
 		case DiagramStmt:
@@ -41,10 +45,23 @@ func (i *Interpreter) Eval() error {
 	return nil
 }
 
-func (i *Interpreter) parseBoardStatement(stmt ConfigStmt) error {
+func (i *Interpreter) parseConfigStatement(stmt ConfigStmt) error {
 	switch stmt.Key {
 	case "board":
-		// TODO: parse config
+		parts := strings.Split(stmt.Value, "x")
+		if len(parts) != 2 {
+			return errors.New("invalid value for board config")
+		}
+		width, err := strconv.ParseInt(parts[0], 10, 64)
+		if err != nil {
+			return err
+		}
+		height, err := strconv.ParseInt(parts[1], 10, 64)
+		if err != nil {
+			return err
+		}
+		i.diagramConfig.Board.Width = width
+		i.diagramConfig.Board.Height = height
 	default:
 		return errors.New("unsupported config key")
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -16,8 +17,10 @@ type DiagramConfig struct {
 }
 
 type Interpreter struct {
-	statements    []any
-	diagramConfig DiagramConfig
+	isConfigDisallowed bool
+	statements         []any
+	diagramConfig      DiagramConfig
+	diagram            [][]rune
 }
 
 func NewInterpreter(statements []any) *Interpreter {
@@ -42,10 +45,21 @@ func (i *Interpreter) Eval() error {
 			return errors.New("unknown statement type")
 		}
 	}
+
+	// TODO: remove, for debugging only
+	for _, v := range i.diagram {
+		for _, v := range v {
+			fmt.Printf("%+v ", string(v))
+		}
+		fmt.Println()
+	}
 	return nil
 }
 
 func (i *Interpreter) parseConfigStatement(stmt ConfigStmt) error {
+	if i.isConfigDisallowed {
+		return errors.New("config statements can only be defined before the diagram")
+	}
 	switch stmt.Key {
 	case "board":
 		parts := strings.Split(stmt.Value, "x")
@@ -69,5 +83,23 @@ func (i *Interpreter) parseConfigStatement(stmt ConfigStmt) error {
 }
 
 func (i *Interpreter) parseDiagramStatement(stmt DiagramStmt) error {
+	// When configuration is still allowed and we see an empty line, don't
+	// treat the line as part of a diagram.
+	if !i.isConfigDisallowed && stmt.IsEmpty() {
+		return nil
+	}
+
+	// When we see a non-empty diagram statement for the first time,
+	// disallow any further configuration statements.
+	if !i.isConfigDisallowed && !stmt.IsEmpty() {
+		i.isConfigDisallowed = true
+	}
+	runes := []rune(stmt.Value)
+	if i.diagramConfig.Board.Width > 0 && int64(len(runes)) > i.diagramConfig.Board.Width {
+		return errors.New("diagram exceeds board width")
+	} else if i.diagramConfig.Board.Height > 0 && int64(len(i.diagram)) >= i.diagramConfig.Board.Height {
+		return errors.New("diagram exceeds board height")
+	}
+	i.diagram = append(i.diagram, runes)
 	return nil
 }

@@ -13,6 +13,10 @@ type DiagramStmt struct {
 	Value string
 }
 
+func (s DiagramStmt) IsEmpty() bool {
+	return s.Value == ""
+}
+
 type Parser struct {
 	lexer        *Lexer
 	statements   []any

@@ -53,7 +53,24 @@ func (i *Interpreter) Eval() error {
 		}
 		fmt.Println()
 	}
+	i.OutputPikchr()
 	return nil
+}
+
+func (i *Interpreter) OutputSVG() (string, error) {
+	return "", nil
+}
+
+func (i *Interpreter) OutputPikchr() (string, error) {
+	output := &PikchrTemplate{}
+	for _, lines := range i.diagram {
+		for _, block := range lines {
+			output.Draw(block)
+		}
+		output.Draw('\n')
+	}
+	fmt.Printf("output = %+v\n", output)
+	return "", nil
 }
 
 func (i *Interpreter) parseConfigStatement(stmt ConfigStmt) error {
@@ -102,4 +119,67 @@ func (i *Interpreter) parseDiagramStatement(stmt DiagramStmt) error {
 	}
 	i.diagram = append(i.diagram, runes)
 	return nil
+}
+
+type PikchrTemplate struct {
+	blockMacros []string
+	seenBlocks  map[rune]bool
+	statements  []string
+}
+
+func (t *PikchrTemplate) addBlockMacro(block rune) {
+	if _, ok := t.seenBlocks[block]; ok {
+		return
+	}
+
+	switch block {
+	case 'b':
+		t.blockMacros = append(t.blockMacros, `define $b { box "" fill skyblue } // blue`)
+	}
+}
+
+func (t *PikchrTemplate) Draw(block rune) error {
+	t.addBlockMacro(block)
+	switch block {
+	case 'b':
+		t.statements = append(t.statements, "$b")
+		// draw block
+	case '\n':
+		t.statements = append(t.statements, "next")
+	}
+
+	// Mark block as seen before
+	if t.seenBlocks == nil {
+		t.seenBlocks = make(map[rune]bool)
+	}
+	if _, ok := t.seenBlocks[block]; !ok {
+		t.seenBlocks[block] = true
+	}
+	return nil
+}
+
+func (t *PikchrTemplate) String() string {
+	template := `boxwid = 0.2
+boxht = boxwid
+
+$currLine = 1
+define next {
+  box invis at (-boxwid, -boxwid*$currLine)
+  $currLine = $currLine + 1
+}
+`
+	var b strings.Builder
+	b.WriteString(template)
+	for _, v := range t.blockMacros {
+		b.WriteString(v + "\n")
+	}
+
+	b.WriteString("\n")
+	for _, v := range t.statements {
+		b.WriteString(v + ";")
+		if v == "next" {
+			b.WriteString("\n")
+		}
+	}
+	return strings.TrimSpace(b.String())
 }

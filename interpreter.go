@@ -10,8 +10,8 @@ import (
 // .tetrisviz file.
 type DiagramConfig struct {
 	Board struct {
-		Width  int64
-		Height int64
+		Width  int
+		Height int
 	}
 }
 
@@ -54,6 +54,19 @@ func (i *Interpreter) OutputSVG() (string, error) {
 
 func (i *Interpreter) OutputPikchr() string {
 	output := &PikchrTemplate{}
+
+	// If board height exceeds the number of diagram lines, fill in the
+	// empty space above the diagram.
+	if i.diagramConfig.Board.Height > 0 && i.diagramConfig.Board.Height > len(i.diagram) {
+		numMissingLines := i.diagramConfig.Board.Height - len(i.diagram)
+		for j := 0; j < numMissingLines; j++ {
+			for k := 0; k < i.diagramConfig.Board.Width; k++ {
+				output.Draw('-')
+			}
+			output.Draw('\n')
+		}
+	}
+
 	for _, lines := range i.diagram {
 		for _, block := range lines {
 			output.Draw(block)
@@ -73,11 +86,11 @@ func (i *Interpreter) parseConfigStatement(stmt ConfigStmt) error {
 		if len(parts) != 2 {
 			return errors.New("invalid value for board config")
 		}
-		width, err := strconv.ParseInt(parts[0], 10, 64)
+		width, err := strconv.Atoi(parts[0])
 		if err != nil {
 			return err
 		}
-		height, err := strconv.ParseInt(parts[1], 10, 64)
+		height, err := strconv.Atoi(parts[1])
 		if err != nil {
 			return err
 		}
@@ -102,9 +115,9 @@ func (i *Interpreter) parseDiagramStatement(stmt DiagramStmt) error {
 		i.isConfigDisallowed = true
 	}
 	runes := []rune(stmt.Value)
-	if i.diagramConfig.Board.Width > 0 && int64(len(runes)) > i.diagramConfig.Board.Width {
+	if i.diagramConfig.Board.Width > 0 && len(runes) > i.diagramConfig.Board.Width {
 		return errors.New("diagram exceeds board width")
-	} else if i.diagramConfig.Board.Height > 0 && int64(len(i.diagram)) >= i.diagramConfig.Board.Height {
+	} else if i.diagramConfig.Board.Height > 0 && len(i.diagram) >= i.diagramConfig.Board.Height {
 		return errors.New("diagram exceeds board height")
 	}
 	i.diagram = append(i.diagram, runes)

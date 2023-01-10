@@ -39,6 +39,7 @@ func execute() error {
 		return err
 	}
 	fmt.Println(interpreter.OutputPikchr())
+	fmt.Println(interpreter.OutputSVG())
 	return nil
 }
 

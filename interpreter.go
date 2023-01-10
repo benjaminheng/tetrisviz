@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -48,8 +49,8 @@ func (i *Interpreter) Eval() error {
 	return nil
 }
 
-func (i *Interpreter) OutputSVG() (string, error) {
-	return "", nil
+func (i *Interpreter) OutputSVG() string {
+	return pikchr(i.OutputPikchr())
 }
 
 func (i *Interpreter) OutputPikchr() string {
@@ -59,6 +60,8 @@ func (i *Interpreter) OutputPikchr() string {
 	// empty space above the diagram.
 	if i.diagramConfig.Board.Height > 0 && i.diagramConfig.Board.Height > len(i.diagram) {
 		numMissingLines := i.diagramConfig.Board.Height - len(i.diagram)
+		emptyLineStmt := strings.Repeat("$e;", i.diagramConfig.Board.Width) + "next;"
+		output.blockMacros = append(output.blockMacros, fmt.Sprintf("define $empty_line { %s }", emptyLineStmt))
 		for j := 0; j < numMissingLines; j++ {
 			for k := 0; k < i.diagramConfig.Board.Width; k++ {
 				output.Draw('-')
@@ -137,21 +140,21 @@ func (t *PikchrTemplate) addBlockMacro(block rune) {
 
 	switch block {
 	case 'b': // blue
-		t.blockMacros = append(t.blockMacros, `define $b { box "" fill skyblue }`)
+		t.blockMacros = append(t.blockMacros, `define $b { box fill skyblue }`)
 	case 'o': // orange
-		t.blockMacros = append(t.blockMacros, `define $o { box "" fill 0xfbbb11 }`)
+		t.blockMacros = append(t.blockMacros, `define $o { box fill 0xfbbb11 }`)
 	case 'y': // yellow
-		t.blockMacros = append(t.blockMacros, `define $y { box "" fill 0xfff223 }`)
+		t.blockMacros = append(t.blockMacros, `define $y { box fill 0xfff223 }`)
 	case 'r': // red
-		t.blockMacros = append(t.blockMacros, `define $r { box "" fill 0xf13636 }`)
+		t.blockMacros = append(t.blockMacros, `define $r { box fill 0xf13636 }`)
 	case 'g': // green
-		t.blockMacros = append(t.blockMacros, `define $g { box "" fill 0x39e572 }`)
+		t.blockMacros = append(t.blockMacros, `define $g { box fill 0x39e572 }`)
 	case 't': // teal
-		t.blockMacros = append(t.blockMacros, `define $t { box "" fill 0x67edf5 }`)
+		t.blockMacros = append(t.blockMacros, `define $t { box fill 0x67edf5 }`)
 	case 'p': // purple
-		t.blockMacros = append(t.blockMacros, `define $p { box "" fill 0xc936f1 }`)
+		t.blockMacros = append(t.blockMacros, `define $p { box fill 0xc936f1 }`)
 	case '-': // empty
-		t.blockMacros = append(t.blockMacros, `define $e { box "" fill 0xc1c1c1 }`)
+		t.blockMacros = append(t.blockMacros, `define $e { box fill 0xc1c1c1 }`)
 	}
 }
 

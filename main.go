@@ -5,6 +5,7 @@ package main
 // #include "pikchr.h"
 import "C"
 import (
+	"fmt"
 	"log"
 	"os"
 	"unsafe"
@@ -37,6 +38,7 @@ func execute() error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(interpreter.OutputPikchr())
 	return nil
 }
 

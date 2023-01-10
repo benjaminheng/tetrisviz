@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -46,14 +45,6 @@ func (i *Interpreter) Eval() error {
 		}
 	}
 
-	// TODO: remove, for debugging only
-	for _, v := range i.diagram {
-		for _, v := range v {
-			fmt.Printf("%+v ", string(v))
-		}
-		fmt.Println()
-	}
-	i.OutputPikchr()
 	return nil
 }
 
@@ -61,7 +52,7 @@ func (i *Interpreter) OutputSVG() (string, error) {
 	return "", nil
 }
 
-func (i *Interpreter) OutputPikchr() (string, error) {
+func (i *Interpreter) OutputPikchr() string {
 	output := &PikchrTemplate{}
 	for _, lines := range i.diagram {
 		for _, block := range lines {
@@ -69,8 +60,7 @@ func (i *Interpreter) OutputPikchr() (string, error) {
 		}
 		output.Draw('\n')
 	}
-	fmt.Printf("output = %+v\n", output)
-	return "", nil
+	return output.String()
 }
 
 func (i *Interpreter) parseConfigStatement(stmt ConfigStmt) error {
@@ -176,7 +166,6 @@ func (t *PikchrTemplate) Draw(block rune) error {
 func (t *PikchrTemplate) String() string {
 	template := `boxwid = 0.2
 boxht = boxwid
-
 $currLine = 1
 define next {
   box invis at (-boxwid, -boxwid*$currLine)

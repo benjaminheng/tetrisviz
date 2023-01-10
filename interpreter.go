@@ -133,17 +133,32 @@ func (t *PikchrTemplate) addBlockMacro(block rune) {
 	}
 
 	switch block {
-	case 'b':
-		t.blockMacros = append(t.blockMacros, `define $b { box "" fill skyblue } // blue`)
+	case 'b': // blue
+		t.blockMacros = append(t.blockMacros, `define $b { box "" fill skyblue }`)
+	case 'o': // orange
+		t.blockMacros = append(t.blockMacros, `define $o { box "" fill 0xfbbb11 }`)
+	case 'y': // yellow
+		t.blockMacros = append(t.blockMacros, `define $y { box "" fill 0xfff223 }`)
+	case 'r': // red
+		t.blockMacros = append(t.blockMacros, `define $r { box "" fill 0xf13636 }`)
+	case 'g': // green
+		t.blockMacros = append(t.blockMacros, `define $g { box "" fill 0x39e572 }`)
+	case 't': // teal
+		t.blockMacros = append(t.blockMacros, `define $t { box "" fill 0x67edf5 }`)
+	case 'p': // purple
+		t.blockMacros = append(t.blockMacros, `define $p { box "" fill 0xc936f1 }`)
+	case '-': // empty
+		t.blockMacros = append(t.blockMacros, `define $e { box "" fill 0xc1c1c1 }`)
 	}
 }
 
 func (t *PikchrTemplate) Draw(block rune) error {
 	t.addBlockMacro(block)
 	switch block {
-	case 'b':
-		t.statements = append(t.statements, "$b")
-		// draw block
+	case 'b', 'o', 'y', 'r', 'g', 't', 'p':
+		t.statements = append(t.statements, "$"+string(block))
+	case '-':
+		t.statements = append(t.statements, "$e")
 	case '\n':
 		t.statements = append(t.statements, "next")
 	}

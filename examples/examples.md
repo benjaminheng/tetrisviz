@@ -73,4 +73,31 @@ $b;$b;$b;next;
 $_;$_;$b;next;
 </pre></td>
 </tr>
+<tr>
+<td><pre>
+goo
+ggo
+bgo
+bbb
+
+</pre></td>
+<td><img src="example3.svg" style="width: 200px"/></td>
+<td><pre>
+boxwid = 1cm
+boxht = boxwid
+$currLine = 1
+define next {
+  box invis at (-boxwid, -boxwid*$currLine)
+  $currLine = $currLine + 1
+}
+define $g { box fill 0x39e572 }
+define $o { box fill 0xfbbb11 }
+define $b { box fill skyblue }
+
+$g;$o;$o;next;
+$g;$g;$o;next;
+$b;$g;$o;next;
+$b;$b;$b;next;
+</pre></td>
+</tr>
 </table>

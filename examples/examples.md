@@ -67,10 +67,10 @@ define next {
   $currLine = $currLine + 1
 }
 define $b { box fill skyblue }
-define $_ { box invis }
+define $\_ { box invis }
 
 $b;$b;$b;next;
-$_;$_;$b;next;
+$\_;$\_;$b;next;
 </pre></td>
 </tr>
 </table>

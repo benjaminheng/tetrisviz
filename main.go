@@ -5,11 +5,29 @@ package main
 // #include "pikchr.h"
 import "C"
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"unsafe"
 )
+
+var (
+	flagFormat = flag.String("format", "svg", "Output format. (Options: pikchr, svg)")
+)
+
+type OutputFormat int
+
+const (
+	OutputFormatPikchr OutputFormat = iota
+	OutputFormatSVG
+)
+
+type Config struct {
+	InputFiles   []string
+	OutputFormat OutputFormat
+}
 
 func main() {
 	err := execute()
@@ -18,7 +36,31 @@ func main() {
 	}
 }
 
+func parseFlags() (Config, error) {
+	c := Config{
+		OutputFormat: OutputFormatSVG,
+	}
+	flag.Parse()
+
+	switch *flagFormat {
+	case "pikchr":
+		c.OutputFormat = OutputFormatPikchr
+	case "svg":
+		c.OutputFormat = OutputFormatSVG
+	default:
+		return c, errors.New("unsupported format")
+	}
+
+	c.InputFiles = flag.Args()
+	return c, nil
+}
+
 func execute() error {
+	config, err := parseFlags()
+	if err != nil {
+		return err
+	}
+
 	filename := "examples/board.tetrisviz"
 	f, err := os.Open(filename)
 	if err != nil {
@@ -38,8 +80,13 @@ func execute() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(interpreter.OutputPikchr())
-	fmt.Println(interpreter.OutputSVG())
+
+	switch config.OutputFormat {
+	case OutputFormatPikchr:
+		fmt.Println(interpreter.OutputPikchr())
+	case OutputFormatSVG:
+		fmt.Println(interpreter.OutputSVG())
+	}
 	return nil
 }
 

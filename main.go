@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"unsafe"
 )
 
@@ -59,6 +60,16 @@ func parseFlags() (Config, error) {
 	return c, nil
 }
 
+func getOutputFilename(inputFilename string, format OutputFormat) string {
+	basename := strings.TrimSuffix(inputFilename, ".tetrisviz")
+	switch format {
+	case OutputFormatPikchr:
+		return basename + ".pikchr"
+	default:
+		return basename + ".svg"
+	}
+}
+
 func execute() error {
 	config, err := parseFlags()
 	if err != nil {
@@ -84,12 +95,27 @@ func execute() error {
 		return err
 	}
 
+	// generate output
+	var output string
 	switch config.OutputFormat {
 	case OutputFormatPikchr:
-		fmt.Println(interpreter.OutputPikchr())
+		output = interpreter.OutputPikchr()
 	case OutputFormatSVG:
-		fmt.Println(interpreter.OutputSVG())
+		output = interpreter.OutputSVG()
 	}
+
+	// write to output file
+	outputFilename := getOutputFilename(config.InputFile, config.OutputFormat)
+	outputFile, err := os.OpenFile(outputFilename, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	defer outputFile.Close()
+	_, err = outputFile.WriteString(output)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("success: compiled %s to %s\n", config.InputFile, outputFilename)
 
 	return nil
 }

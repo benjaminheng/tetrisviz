@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -60,8 +59,6 @@ func (i *Interpreter) OutputPikchr() string {
 	// empty space above the diagram.
 	if i.diagramConfig.Board.Height > 0 && i.diagramConfig.Board.Height > len(i.diagram) {
 		numMissingLines := i.diagramConfig.Board.Height - len(i.diagram)
-		emptyLineStmt := strings.Repeat("$e;", i.diagramConfig.Board.Width) + "next;"
-		output.blockMacros = append(output.blockMacros, fmt.Sprintf("define $empty_line { %s }", emptyLineStmt))
 		for j := 0; j < numMissingLines; j++ {
 			for k := 0; k < i.diagramConfig.Board.Width; k++ {
 				output.Draw('-')

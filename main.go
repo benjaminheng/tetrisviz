@@ -8,7 +8,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"unsafe"
 )
@@ -25,14 +24,14 @@ const (
 )
 
 type Config struct {
-	InputFiles   []string
+	InputFile    string
 	OutputFormat OutputFormat
 }
 
 func main() {
 	err := execute()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
 	}
 }
 
@@ -51,7 +50,12 @@ func parseFlags() (Config, error) {
 		return c, errors.New("unsupported format")
 	}
 
-	c.InputFiles = flag.Args()
+	if flag.NArg() == 0 {
+		return c, errors.New("no input files specified")
+	} else if flag.NArg() > 1 {
+		return c, errors.New("at most one input can be specified")
+	}
+	c.InputFile = flag.Arg(0)
 	return c, nil
 }
 
@@ -61,8 +65,7 @@ func execute() error {
 		return err
 	}
 
-	filename := "examples/board.tetrisviz"
-	f, err := os.Open(filename)
+	f, err := os.Open(config.InputFile)
 	if err != nil {
 		return err
 	}
@@ -87,6 +90,7 @@ func execute() error {
 	case OutputFormatSVG:
 		fmt.Println(interpreter.OutputSVG())
 	}
+
 	return nil
 }
 

@@ -1,6 +1,6 @@
 # Examples
 <table>
-<tr><th>tetrisviz</th><th>pikchr</th><th>svg</th></tr>
+<tr><th>tetrisviz</th><th>svg</th><th>pikchr</th></tr>
 <tr>
 <td><pre>
 +board 10x20
@@ -11,6 +11,7 @@ rpgg-t-yyo
 pppg-t-ooo
 
 </pre></td>
+<td><img src="example1.svg" style="width: 200px"/></td>
 <td><pre>
 boxwid = 0.2
 boxht = boxwid
@@ -50,6 +51,5 @@ $r;$p;$g;$g;$e;$t;$e;$y;$y;$o;next;
 $p;$p;$p;$g;$e;$t;$e;$o;$o;$o;next;$e;$t;$e;$y;$y;$o;next;
 $p;$p;$p;$g;$e;$t;$e;$o;$o;$o;next;
 </pre></td>
-<td><img src="example1.svg" style="width: 200px"/></td>
 </tr>
 </table>

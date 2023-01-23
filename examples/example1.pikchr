@@ -1,4 +1,4 @@
-boxwid = 0.2
+boxwid = 1cm
 boxht = boxwid
 $currLine = 1
 define next {

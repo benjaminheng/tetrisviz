@@ -13,7 +13,7 @@ pppg-t-ooo
 </pre></td>
 <td><img src="example1.svg" style="width: 200px"/></td>
 <td><pre>
-boxwid = 0.2
+boxwid = 1cm
 boxht = boxwid
 $currLine = 1
 define next {
@@ -49,6 +49,28 @@ $e;$r;$e;$e;$e;$t;$e;$b;$b;$b;next;
 $r;$r;$g;$e;$e;$t;$e;$y;$y;$b;next;
 $r;$p;$g;$g;$e;$t;$e;$y;$y;$o;next;
 $p;$p;$p;$g;$e;$t;$e;$o;$o;$o;next;
+</pre></td>
+</tr>
+<tr>
+<td><pre>
+bbb
+  b
+
+</pre></td>
+<td><img src="example2.svg" style="width: 200px"/></td>
+<td><pre>
+boxwid = 1cm
+boxht = boxwid
+$currLine = 1
+define next {
+  box invis at (-boxwid, -boxwid*$currLine)
+  $currLine = $currLine + 1
+}
+define $b { box fill skyblue }
+define $_ { box invis }
+
+$b;$b;$b;next;
+$_;$_;$b;next;
 </pre></td>
 </tr>
 </table>

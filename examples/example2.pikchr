@@ -1,0 +1,12 @@
+boxwid = 1cm
+boxht = boxwid
+$currLine = 1
+define next {
+  box invis at (-boxwid, -boxwid*$currLine)
+  $currLine = $currLine + 1
+}
+define $b { box fill skyblue }
+define $_ { box invis }
+
+$b;$b;$b;next;
+$_;$_;$b;next;

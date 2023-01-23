@@ -152,6 +152,8 @@ func (t *PikchrTemplate) addBlockMacro(block rune) {
 		t.blockMacros = append(t.blockMacros, `define $p { box fill 0xc936f1 }`)
 	case '-': // empty
 		t.blockMacros = append(t.blockMacros, `define $e { box fill 0xc1c1c1 }`)
+	case ' ': // invis
+		t.blockMacros = append(t.blockMacros, `define $_ { box invis }`)
 	}
 }
 
@@ -162,6 +164,8 @@ func (t *PikchrTemplate) Draw(block rune) error {
 		t.statements = append(t.statements, "$"+string(block))
 	case '-':
 		t.statements = append(t.statements, "$e")
+	case ' ':
+		t.statements = append(t.statements, "$_")
 	case '\n':
 		t.statements = append(t.statements, "next")
 	}
@@ -177,7 +181,7 @@ func (t *PikchrTemplate) Draw(block rune) error {
 }
 
 func (t *PikchrTemplate) String() string {
-	template := `boxwid = 0.2
+	template := `boxwid = 1cm
 boxht = boxwid
 $currLine = 1
 define next {

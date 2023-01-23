@@ -106,7 +106,7 @@ func execute() error {
 
 	// write to output file
 	outputFilename := getOutputFilename(config.InputFile, config.OutputFormat)
-	outputFile, err := os.OpenFile(outputFilename, os.O_RDWR|os.O_CREATE, 0666)
+	outputFile, err := os.OpenFile(outputFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}

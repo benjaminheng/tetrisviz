@@ -1,7 +1,5 @@
-A toy program to render Tetris blocks to SVG using a compact DSL.
+A toy program to render Tetris blocks in SVG format using a compact DSL.
 
-TODO:
-
-- Switch to a lexer approach. If there's a syntax error I want to be able to
-  print the line and character rather than a generic error. It'll also be a
-  good opportunity to play with building a lexer.
+I don't really have a purpose for this. It's mostly a way for me to learn about
+writing a lexer and parser. There are some examples in the
+[examples/](./examples/) directory.

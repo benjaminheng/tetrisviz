@@ -5,9 +5,11 @@ package main
 // #include "pikchr.h"
 import "C"
 import (
+	"bufio"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"unsafe"
@@ -76,19 +78,26 @@ func execute() error {
 		return err
 	}
 
-	f, err := os.Open(config.InputFile)
-	if err != nil {
-		return err
+	// Read from stdin or from file
+	var r io.Reader
+	if config.InputFile == "-" {
+		r = bufio.NewReader(os.Stdin)
+	} else {
+		f, err := os.Open(config.InputFile)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		r = f
 	}
-	defer f.Close()
 
-	lexer := NewLexer(f)
+	// Interpret .tetrisviz data
+	lexer := NewLexer(r)
 	parser := NewParser(lexer)
 	statements, err := parser.Parse()
 	if err != nil {
 		return err
 	}
-
 	interpreter := NewInterpreter(statements)
 	err = interpreter.Eval()
 	if err != nil {
@@ -105,17 +114,21 @@ func execute() error {
 	}
 
 	// write to output file
-	outputFilename := getOutputFilename(config.InputFile, config.OutputFormat)
-	outputFile, err := os.OpenFile(outputFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-	if err != nil {
-		return err
+	if config.InputFile == "-" {
+		fmt.Println(output)
+	} else {
+		outputFilename := getOutputFilename(config.InputFile, config.OutputFormat)
+		outputFile, err := os.OpenFile(outputFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+		if err != nil {
+			return err
+		}
+		defer outputFile.Close()
+		_, err = outputFile.WriteString(output)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("success: compiled %s to %s\n", config.InputFile, outputFilename)
 	}
-	defer outputFile.Close()
-	_, err = outputFile.WriteString(output)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("success: compiled %s to %s\n", config.InputFile, outputFilename)
 
 	return nil
 }

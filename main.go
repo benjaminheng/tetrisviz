@@ -10,9 +10,13 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math"
 	"os"
+	"strconv"
 	"strings"
 	"unsafe"
+
+	"golang.org/x/net/html"
 )
 
 var (
@@ -111,6 +115,11 @@ func execute() error {
 		output = interpreter.OutputPikchr()
 	case OutputFormatSVG:
 		output = interpreter.OutputSVG()
+		// TODO: put behind a flag
+		output, err = applyFixedDimensions(output)
+		if err != nil {
+			return err
+		}
 	}
 
 	// write to output file
@@ -131,6 +140,50 @@ func execute() error {
 	}
 
 	return nil
+}
+
+func applyFixedDimensions(svg string) (string, error) {
+	doc, err := html.Parse(strings.NewReader(svg))
+	if err != nil {
+		return "", err
+	}
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "svg" {
+			for _, a := range n.Attr {
+				if a.Key == "viewBox" {
+					components := strings.Split(a.Val, " ")
+					width, err := strconv.ParseFloat(components[2], 64)
+					if err != nil {
+						break
+					}
+					intWidth := int64(math.Ceil(width))
+					height, err := strconv.ParseFloat(components[3], 64)
+					if err != nil {
+						break
+					}
+					intHeight := int64(math.Ceil(height))
+					style := fmt.Sprintf("width: %dpx; height: %dpx;", intWidth, intHeight)
+					n.Attr = append(n.Attr, html.Attribute{Key: "style", Val: style})
+					break
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(doc)
+
+	w := &strings.Builder{}
+	err = html.Render(w, doc)
+	if err != nil {
+		return "", err
+	}
+	svg = strings.TrimPrefix(w.String(), "<html><head></head><body>")
+	svg = strings.TrimSuffix(svg, "</body></html>")
+
+	return svg, nil
 }
 
 func pikchr(source string) string {

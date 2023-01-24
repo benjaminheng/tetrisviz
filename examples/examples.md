@@ -13,8 +13,9 @@ pppg-t-ooo
 </pre></td>
 <td><img src="example1.svg" style="width: 200px"/></td>
 <td><pre>
-boxwid = 1cm
+boxwid = 0.5cm
 boxht = boxwid
+thickness = 0.01
 $currLine = 1
 define next {
   box invis at (-boxwid, -boxwid*$currLine)
@@ -59,8 +60,9 @@ bbb
 </pre></td>
 <td><img src="example2.svg" style="width: 200px"/></td>
 <td><pre>
-boxwid = 1cm
+boxwid = 0.5cm
 boxht = boxwid
+thickness = 0.01
 $currLine = 1
 define next {
   box invis at (-boxwid, -boxwid*$currLine)
@@ -83,8 +85,9 @@ bbb
 </pre></td>
 <td><img src="example3.svg" style="width: 200px"/></td>
 <td><pre>
-boxwid = 1cm
+boxwid = 0.5cm
 boxht = boxwid
+thickness = 0.01
 $currLine = 1
 define next {
   box invis at (-boxwid, -boxwid*$currLine)

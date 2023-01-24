@@ -181,8 +181,9 @@ func (t *PikchrTemplate) Draw(block rune) error {
 }
 
 func (t *PikchrTemplate) String() string {
-	template := `boxwid = 1cm
+	template := `boxwid = 0.5cm
 boxht = boxwid
+thickness = 0.01
 $currLine = 1
 define next {
   box invis at (-boxwid, -boxwid*$currLine)
